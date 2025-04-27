@@ -385,7 +385,7 @@ pub fn generate_for_node(
 /// Returns (prometheus, rpc, p2p) ports to use in the command
 fn resolve_ports(node: &NodeSpec, use_default_ports_in_cmd: bool) -> (u16, u16, u16) {
     if use_default_ports_in_cmd {
-        (PROMETHEUS_PORT, RPC_PORT, P2P_PORT)
+        (PROMETHEUS_PORT, RPC_HTTP_PORT, P2P_PORT)
     } else {
         (node.prometheus_port.0, node.rpc_port.0, node.p2p_port.0)
     }
