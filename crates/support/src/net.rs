@@ -1,7 +1,7 @@
-use std::{io::Cursor, str::FromStr, time::Duration};
+use std::{error::Error, io::Cursor, str::FromStr, time::Duration};
 
 use reqwest::{Method, Request, StatusCode, Url};
-use tracing::trace;
+use tracing::{debug, trace, warn};
 
 use crate::constants::THIS_IS_A_BUG;
 
@@ -22,6 +22,7 @@ pub async fn wait_ws_ready(url: &str) -> Result<()> {
         .map_err(|_| anyhow::anyhow!("Can not set the scheme, {}", THIS_IS_A_BUG))?;
 
     let http_client = reqwest::Client::new();
+    debug!("wait_ws_ready http_client = {http_client:?}");
     loop {
         let req = Request::new(Method::OPTIONS, parsed.clone());
         let res = http_client.execute(req).await;
@@ -39,7 +40,11 @@ pub async fn wait_ws_ready(url: &str) -> Result<()> {
                     return Err(e.into());
                 }
 
-                trace!("http_client err: {}, continuing... ", e.to_string());
+                warn!(
+                    "http_client err: {} source: {:?}, continuing... ",
+                    e.to_string(),
+                    e.source()
+                );
             },
         }
 
