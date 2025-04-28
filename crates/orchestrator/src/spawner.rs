@@ -16,7 +16,7 @@ use crate::{
     generators,
     network::node::NetworkNode,
     network_spec::{node::NodeSpec, parachain::ParachainSpec},
-    shared::constants::{FULL_NODE_PROMETHEUS_PORT, PROMETHEUS_PORT, RPC_HTTP_PORT},
+    shared::constants::{FULL_NODE_PROMETHEUS_PORT, PROMETHEUS_PORT, RPC_PORT},
     ScopedFilesystem, ZombieRole,
 };
 
@@ -181,13 +181,13 @@ where
         // should use default ports to as internal
         [
             (P2P_PORT, node.p2p_port.0),
-            (RPC_HTTP_PORT, node.rpc_port.0),
+            (RPC_PORT, node.rpc_port.0),
             (PROMETHEUS_PORT, node.prometheus_port.0),
         ]
     } else {
         [
             (P2P_PORT, P2P_PORT),
-            (RPC_HTTP_PORT, RPC_HTTP_PORT),
+            (RPC_PORT, RPC_PORT),
             (PROMETHEUS_PORT, PROMETHEUS_PORT),
         ]
     };
@@ -229,13 +229,13 @@ where
     // Create port-forward iff we are  in CI and with k8s provider
     if running_in_ci() && ctx.ns.capabilities().use_default_ports_in_cmd {
         // running kubernets in ci require to use ip and default port
-        (rpc_port_external, prometheus_port_external) = (RPC_HTTP_PORT, PROMETHEUS_PORT);
+        (rpc_port_external, prometheus_port_external) = (RPC_PORT, PROMETHEUS_PORT);
         collator_full_node_prom_port_external = Some(FULL_NODE_PROMETHEUS_PORT);
         ip_to_use = running_node.ip().await?;
     } else {
         // Create port-forward iff we are not in CI or provider doesn't use the default ports (native)
         let ports = futures::future::try_join_all(vec![
-            running_node.create_port_forward(node.rpc_port.0, RPC_HTTP_PORT),
+            running_node.create_port_forward(node.rpc_port.0, RPC_PORT),
             running_node.create_port_forward(node.prometheus_port.0, PROMETHEUS_PORT),
         ])
         .await?;
