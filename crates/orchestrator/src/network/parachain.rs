@@ -150,6 +150,7 @@ impl Parachain {
                 "Wasm Path should be ok by this point {THIS_IS_A_BUG}"
             ));
 
+        info!("before wait_ws_ready");
         wait_ws_ready(options.node_ws_url.as_str())
             .await
             .map_err(|_| {
@@ -158,6 +159,7 @@ impl Parachain {
                     options.node_ws_url.as_str()
                 )
             })?;
+        info!("after wait_ws_ready");
         let api = OnlineClient::<SubstrateConfig>::from_url(options.node_ws_url).await?;
 
         let schedule_para = subxt::dynamic::tx(
@@ -205,6 +207,7 @@ impl Parachain {
             }
         }
 
+        info!("register done");
         Ok(())
     }
 

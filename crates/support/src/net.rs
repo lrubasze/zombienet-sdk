@@ -1,7 +1,7 @@
 use std::{io::Cursor, str::FromStr, time::Duration};
 
 use reqwest::{Method, Request, StatusCode, Url};
-use tracing::trace;
+use tracing::{info, trace};
 
 use crate::constants::THIS_IS_A_BUG;
 
@@ -16,15 +16,19 @@ pub async fn download_file(url: String, dest: String) -> Result<()> {
 }
 
 pub async fn wait_ws_ready(url: &str) -> Result<()> {
+    info!("wait_ws_ready url: {url}");
     let mut parsed = Url::from_str(url)?;
     parsed
         .set_scheme("http")
         .map_err(|_| anyhow::anyhow!("Can not set the scheme, {}", THIS_IS_A_BUG))?;
 
     let http_client = reqwest::Client::new();
+    info!("wait_ws_ready http_client: {:#?}", http_client);
     loop {
         let req = Request::new(Method::OPTIONS, parsed.clone());
+        info!("wait_ws_ready req: {:#?}", req);
         let res = http_client.execute(req).await;
+        info!("wait_ws_ready res: {:#?}", res);
         match res {
             Ok(res) => {
                 if res.status() == StatusCode::OK {
@@ -46,6 +50,7 @@ pub async fn wait_ws_ready(url: &str) -> Result<()> {
         tokio::time::sleep(Duration::from_secs(1)).await;
     }
 
+    info!("wait_ws_ready ok");
     Ok(())
 }
 
